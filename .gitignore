@@ -1,0 +1,17 @@
+.DS_Store
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+.idea/
+*.iml
+.vscode/
+*.log
+*.pyc
+*.swp
+.atom/
+.buildlog/
+.history
+.svn/
+lib/generated_plugin_registrant.dart
