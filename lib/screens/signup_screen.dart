@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/database_helper.dart';
+import '../services/mysql_service.dart';
 import '../models/user.dart';
 import 'main_screen.dart';
 
@@ -43,16 +43,39 @@ class _SignupScreenState extends State<SignupScreen> {
     );
     
     try {
-      await DatabaseHelper.instance.createUser(user);
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(builder: (context) => MainScreen(user: user))
-      );
+      final userId = await MySqlService.instance.createUser(user);
+      if (userId > 0) {
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (context) => MainScreen(user: user))
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('회원가입 오류'),
+            content: Text('MySQL 서버 오류가 발생했습니다. 나중에 다시 시도해주세요.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('확인'),
+              ),
+            ],
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('회원가입 중 오류가 발생했습니다: $e'),
-          backgroundColor: Colors.red,
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('회원가입 오류'),
+          content: Text('오류가 발생했습니다: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('확인'),
+            ),
+          ],
         ),
       );
     }

@@ -1,8 +1,7 @@
-
 // screens/joined_book_clubs_screen.dart
 import 'package:flutter/material.dart';
 import '../models/book_club.dart';
-import '../services/database_helper.dart';
+import '../services/mysql_service.dart';
 
 class JoinedBookClubsScreen extends StatefulWidget {
   final int userId;
@@ -23,7 +22,7 @@ class _JoinedBookClubsScreenState extends State<JoinedBookClubsScreen> {
   }
 
   Future<void> _loadJoinedBookClubs() async {
-    final clubs = await DatabaseHelper.instance.getJoinedBookClubs(widget.userId);
+    final clubs = await MySqlService.instance.getJoinedBookClubs(widget.userId);
     setState(() {
       joinedBookClubs = clubs;
     });

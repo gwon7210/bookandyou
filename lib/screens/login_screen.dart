@@ -1,6 +1,6 @@
 // screens/login_screen.dart
 import 'package:flutter/material.dart';
-import '../services/database_helper.dart';
+import '../services/mysql_service.dart';
 import '../models/user.dart';
 import 'main_screen.dart';
 import 'signup_screen.dart';
@@ -15,18 +15,34 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _loginUser() async {
-    final user = await DatabaseHelper.instance.getUser(
-      _usernameController.text, 
-      _passwordController.text
-    );
-    if (user != null) {
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(builder: (context) => MainScreen(user: user))
+    try {
+      final user = await MySqlService.instance.getUser(
+        _usernameController.text, 
+        _passwordController.text
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('로그인 실패: 아이디 또는 비밀번호를 확인하세요.')),
+      if (user != null) {
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (context) => MainScreen(user: user))
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('로그인 실패: 아이디 또는 비밀번호를 확인하세요.')),
+        );
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('데이터베이스 오류'),
+          content: Text('오류가 발생했습니다: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('확인'),
+            ),
+          ],
+        ),
       );
     }
   }

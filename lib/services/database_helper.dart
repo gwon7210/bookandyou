@@ -1,93 +1,145 @@
+// // services/database_helper.dart
+// import 'package:mysql1/mysql1.dart';
+// import '../models/user.dart';
+// import '../models/book_club.dart';
+// import '../services/mysql_service.dart';
 
-// services/database_helper.dart
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import '../models/user.dart';
-import '../models/book_club.dart';
+// class DatabaseHelper {
+//   static final DatabaseHelper instance = DatabaseHelper._init();
+//   static MySqlConnection? _connection;
 
-class DatabaseHelper {
-  static final DatabaseHelper instance = DatabaseHelper._init();
-  static Database? _database;
+//   DatabaseHelper._init();
 
-  DatabaseHelper._init();
+//   Future<MySqlConnection> get connection async {
+//     if (_connection != null) return _connection!;
+//     _connection = await _initDB();
+//     return _connection!;
+//   }
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB('app.db');
-    return _database!;
-  }
+//   Future<MySqlConnection> _initDB() async {
+//     final settings = ConnectionSettings(
+//       host: 'localhost',
+//       port: 3306,
+//       user: 'bookandyou',
+//       password: '1212',
+//       db: 'bookandyou_db'
+//     );
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
+//     return await MySqlConnection.connect(settings);
+//   }
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
-  }
+//   Future<void> initializeTables() async {
+//     final conn = await connection;
+    
+//     await conn.query('''
+//       CREATE TABLE IF NOT EXISTS users (
+//         id INT AUTO_INCREMENT PRIMARY KEY,
+//         username VARCHAR(255) NOT NULL,
+//         password VARCHAR(255) NOT NULL,
+//         age INT NOT NULL,
+//         height DOUBLE NOT NULL,
+//         nickname VARCHAR(255) NOT NULL,
+//         favoriteBook VARCHAR(255) NOT NULL
+//       )
+//     ''');
 
-  Future<void> _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        password TEXT NOT NULL,
-        age INTEGER NOT NULL,
-        height REAL NOT NULL,
-        nickname TEXT NOT NULL,
-        favoriteBook TEXT NOT NULL
-      )
-    ''');
+//     await conn.query('''
+//       CREATE TABLE IF NOT EXISTS joined_book_clubs (
+//         id INT AUTO_INCREMENT PRIMARY KEY,
+//         user_id INT NOT NULL,
+//         book_club_id INT NOT NULL,
+//         FOREIGN KEY (user_id) REFERENCES users (id),
+//         FOREIGN KEY (book_club_id) REFERENCES book_clubs (id)
+//       )
+//     ''');
+//   }
 
-    await db.execute('''
-      CREATE TABLE joined_book_clubs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        book_club_id INTEGER NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users (id),
-        FOREIGN KEY (book_club_id) REFERENCES book_clubs (id)
-      )
-    ''');
-  }
+//   Future<int> joinBookClub(int userId, int bookClubId) async {
+//     final conn = await connection;
+//     var result = await conn.query(
+//       'INSERT INTO joined_book_clubs (user_id, book_club_id) VALUES (?, ?)',
+//       [userId, bookClubId]
+//     );
+//     return result.insertId ?? -1;
+//   }
 
-  Future<int> joinBookClub(int userId, int bookClubId) async {
-    final db = await instance.database;
-    return await db.insert('joined_book_clubs', {
-      'user_id': userId,
-      'book_club_id': bookClubId,
-    });
-  }
+//   Future<List<BookClub>> getJoinedBookClubs(int userId) async {
+//     final conn = await connection;
+//     var results = await conn.query('''
+//       SELECT bc.id, bc.bookTitle, bc.description 
+//       FROM book_clubs bc
+//       JOIN joined_book_clubs jbc ON bc.id = jbc.book_club_id
+//       WHERE jbc.user_id = ?
+//     ''', [userId]);
 
-  Future<List<BookClub>> getJoinedBookClubs(int userId) async {
-    final db = await instance.database;
-    final result = await db.rawQuery('''
-      SELECT bc.id, bc.bookTitle, bc.description FROM book_clubs bc
-      JOIN joined_book_clubs jbc ON bc.id = jbc.book_club_id
-      WHERE jbc.user_id = ?
-    ''', [userId]);
+//     return results.map((row) => BookClub.fromMap({
+//       'id': row[0],
+//       'bookTitle': row[1],
+//       'description': row[2],
+//     })).toList();
+//   }
 
-    return result.map((map) => BookClub.fromMap(map)).toList();
-  }
+//   Future<User?> getUser(String username, String password) async {
+//     final conn = await connection;
+//     var results = await conn.query(
+//       'SELECT * FROM users WHERE username = ? AND password = ?',
+//       [username, password]
+//     );
 
-  Future<User?> getUser(String username, String password) async {
-  final db = await instance.database;
-  final maps = await db.query(
-    'users',
-    where: 'username = ? AND password = ?',
-    whereArgs: [username, password],
-  );
+//     if (results.isNotEmpty) {
+//       final row = results.first;
+//       return User.fromMap({
+//         'id': row[0],
+//         'username': row[1],
+//         'password': row[2],
+//         'age': row[3],
+//         'height': row[4],
+//         'nickname': row[5],
+//         'favoriteBook': row[6],
+//       });
+//     }
+//     return null;
+//   }
 
-  if (maps.isNotEmpty) {
-    return User.fromMap(maps.first);
-  }
-  return null;
-}
+//   Future<int> createUser(User user) async {
+//     final conn = await connection;
+//     var result = await conn.query(
+//       '''INSERT INTO users 
+//          (username, password, age, height, nickname, favoriteBook)
+//          VALUES (?, ?, ?, ?, ?, ?)''',
+//       [
+//         user.username,
+//         user.password,
+//         user.age,
+//         user.height,
+//         user.nickname,
+//         user.favoriteBook
+//       ]
+//     );
+//     return result.insertId ?? -1;
+//   }
+
+//   Future<void> close() async {
+//     final conn = await connection;
+//     await conn.close();
+//   }
+
+//   Future<T> executeWithRetry<T>(Future<T> Function() operation) async {
+//     try {
+//       return await operation();
+//     } on SocketException catch (e) {
+//       // 연결이 끊어진 경우 재시도
+//       await MySqlService.closeConnection();
+//       return await operation();
+//     } catch (e) {
+//       throw e;
+//     }
+//   }
   
-  Future<int> createUser(User user) async {
-  final db = await instance.database;
-  return await db.insert('users', user.toMap());
-}
-
-}
+//   Future<void> query(String sql) async {
+//     await executeWithRetry(() async {
+//       final conn = await MySqlService.connection;
+//       return await conn.query(sql);
+//     });
+//   }
+// }

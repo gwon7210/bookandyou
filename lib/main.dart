@@ -5,12 +5,45 @@ import 'screens/main_screen.dart';
 import 'screens/book_club_screen.dart';
 import 'screens/joined_book_clubs_screen.dart';
 import 'models/user.dart';
+import 'services/mysql_service.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await MySqlService.instance.initializeTables();
+    runApp(MyApp());
+  } catch (e) {
+    print('데이터베이스 초기화 실패: $e');
+  }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  MyAppState createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    MySqlService.instance.close();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      MySqlService.instance.close();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,6 +76,9 @@ class MyApp extends StatelessWidget {
         }
         return null;
       },
+      navigatorObservers: [
+        RouteObserver(),
+      ],
     );
   }
 }
