@@ -7,7 +7,11 @@ class BookClubDetailScreen extends StatelessWidget {
   final BookClub bookClub;
   final int userId;
 
-  BookClubDetailScreen({required this.bookClub, required this.userId});
+  const BookClubDetailScreen({
+    Key? key,
+    required this.bookClub,
+    required this.userId,
+  }) : super(key: key);
 
   Future<void> _joinBookClub(BuildContext context) async {
     await MySqlService.instance.joinBookClub(userId, bookClub.id!);
@@ -19,7 +23,9 @@ class BookClubDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(bookClub.bookTitle)),
+      appBar: AppBar(
+        title: Text(bookClub.bookTitle),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

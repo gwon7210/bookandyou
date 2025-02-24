@@ -5,16 +5,22 @@ import 'book_club_detail_screen.dart';
 import '../models/user.dart';
 import '../services/mysql_service.dart';
 
-class BookClubScreen extends StatelessWidget {
+class BookClubScreen extends StatefulWidget {
   final User user;
+  
   BookClubScreen({required this.user});
   
+  @override
+  _BookClubScreenState createState() => _BookClubScreenState();
+}
+
+class _BookClubScreenState extends State<BookClubScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('독서 모임 선택')),
       body: FutureBuilder<List<BookClub>>(
-        future: MySqlService.instance.getJoinedBookClubs(user.id!),
+        future: MySqlService.instance.getJoinedBookClubs(widget.user.id!),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
@@ -34,12 +40,7 @@ class BookClubScreen extends StatelessWidget {
                     title: Text(club.bookTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     subtitle: Text(club.description),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => BookClubDetailScreen(bookClub: club, userId: user.id!),
-                        ),
-                      );
+                      navigateToBookClubDetail(context, club);
                     },
                   ),
                 );
@@ -48,6 +49,26 @@ class BookClubScreen extends StatelessWidget {
           }
         },
       ),
+    );
+  }
+
+  void navigateToBookClubDetail(BuildContext context, BookClub bookClub) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookClubDetailScreen(bookClub: bookClub, userId: widget.user.id!),
+      ),
+    );
+  }
+
+  Widget buildBookClubButton(BookClub bookClub) {
+    return ElevatedButton(
+      onPressed: () {
+        if (mounted && context != null) {
+          navigateToBookClubDetail(context, bookClub);
+        }
+      },
+      child: Text('독서 모임 선택'),
     );
   }
 }
