@@ -100,22 +100,19 @@ class MySqlService {
     }
   }
 
-  Future<List<BookClub>> getJoinedBookClubs(int userId) async {
+  Future<List<BookClub>> getBookClubList([int? bookClubId]) async {
     try {
       await _ensureConnection();
       final results = await _conn!.query(
         '''
-        SELECT bc.* FROM book_clubs bc
-        INNER JOIN user_book_clubs ubc ON bc.id = ubc.book_club_id
-        WHERE ubc.user_id = ?
-        ''',
-        [userId]
+        SELECT * FROM book_clubs 
+        '''
       );
 
       return results.map((row) => BookClub(
         id: row['id'],
-        bookTitle: row['book_title'],
-        description: row['description'],
+        bookTitle: row['bookTitle'].toString(),
+        description: row['description'].toString()
       )).toList();
     } catch (e) {
       print('북클럽 조회 실패: $e');
@@ -135,6 +132,31 @@ class MySqlService {
       rethrow;
     }
   }
+
+Future<List<BookClub>> getJoinedBookClubs(int userId) async {
+  try {
+    await _ensureConnection();
+    final results = await _conn!.query(
+      '''
+      SELECT bc.id, bc.bookTitle, bc.description
+      FROM bookandyou.user_book_clubs ubc
+      JOIN bookandyou.book_clubs bc ON ubc.book_club_id = bc.id
+      WHERE ubc.user_id = ?
+      ''', 
+      [userId]
+    );
+
+    return results.map((row) => BookClub(
+      id: row['id'],
+      bookTitle: row['bookTitle'].toString(),
+      description: row['description'].toString(),
+    )).toList();
+  } catch (e) {
+    print('북클럽 조회 실패: $e');
+    return [];
+  }
+}
+
 
   Future<void> close() async {
     await closeConnection();

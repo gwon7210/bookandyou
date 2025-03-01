@@ -20,7 +20,7 @@ class _BookClubScreenState extends State<BookClubScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('독서 모임 선택')),
       body: FutureBuilder<List<BookClub>>(
-        future: MySqlService.instance.getJoinedBookClubs(widget.user.id!),
+        future: MySqlService.instance.getBookClubList(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();

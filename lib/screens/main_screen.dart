@@ -44,7 +44,7 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => BookClubScreen(user: user)),
                 );
               },
-              child: Text('독서 모임 선택'),
+              child: Text('독서 모임 참여하러 가기'),
             ),
             SizedBox(height: 10),
             ElevatedButton(
