@@ -49,12 +49,11 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
       String latitude = position.latitude.toString();
       String longitude = position.longitude.toString();
 
-      _sendProfileToServer(latitude, longitude);
+      await _sendProfileToServer(latitude, longitude);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('위치 정보를 가져오는 데 실패했습니다: $e')),
       );
-    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -76,20 +75,23 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
       final response = await http.post(apiUrl, headers: headers, body: body);
 
       if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('프로필 저장 성공!')),
-        );
-        Navigator.pushNamed(context, '/home'); // 저장 후 홈 화면으로 이동 (예제)
+        Navigator.pushReplacementNamed(context, '/home'); // 위치 설정 완료 후 바로 홈 페이지로 이동
       } else {
         final responseBody = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('저장 실패: ${responseBody["message"]}')),
         );
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('네트워크 오류: $e')),
       );
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
