@@ -29,6 +29,10 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>이 앱은 사용자의 위치 정보를 필요로 합니다.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>이 앱은 사용자의 위치 정보를 필요로 합니다.</string>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

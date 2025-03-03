@@ -1,84 +1,31 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
-import 'screens/signup_screen.dart';
-import 'screens/main_screen.dart';
-import 'screens/book_club_screen.dart';
-import 'screens/joined_book_clubs_screen.dart';
-import 'models/user.dart';
-import 'services/mysql_service.dart';
+import 'screens/welcome_page.dart';
+import 'screens/signup_page.dart';
+import 'screens/phone_login_page.dart';
+import 'screens/password_register_page.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    await MySqlService.instance.initializeTables();
-    runApp(MyApp());
-  } catch (e) {
-    print('데이터베이스 초기화 실패: $e');
-  }
+void main() {
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  MyAppState createState() => MyAppState();
-}
-
-class MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    MySqlService.instance.close();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached) {
-      MySqlService.instance.close();
-    }
-  }
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Book Meetup',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        fontFamily: 'SF Pro Display',
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: '/login',
+      home: const WelcomePage(), // 웰컴 페이지를 메인 화면으로 설정
       routes: {
-        '/login': (context) => LoginScreen(),
-        '/signup': (context) => SignupScreen(),
+        '/signup': (context) => const SignupPage(), // 회원가입 페이지
+        '/phone_login': (context) => const PhoneLoginPage(), // 휴대폰 로그인 페이지
+        '/password_register': (context) => const PasswordRegisterPage(phoneNumber: ''), // 비밀번호 등록 페이지 (phoneNumber 필요)
       },
-      onGenerateRoute: (settings) {
-        if (settings.name == '/main') {
-          final user = settings.arguments as User;
-          return MaterialPageRoute(
-            builder: (context) => MainScreen(user: user),
-          );
-        } else if (settings.name == '/book_club') {
-          final user = settings.arguments as User;
-          return MaterialPageRoute(
-            builder: (context) => BookClubScreen(user: user),
-          );
-        } else if (settings.name == '/joined_book_clubs') {
-          final userId = settings.arguments as int;
-          return MaterialPageRoute(
-            builder: (context) => JoinedBookClubsScreen(userId: userId),
-          );
-        }
-        return null;
-      },
-      navigatorObservers: [
-        RouteObserver(),
-      ],
     );
   }
 }
