@@ -25,7 +25,7 @@ class WelcomePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: ElevatedButton(
               onPressed: () {
-                // 로그인 페이지 이동 (현재 미구현)
+                Navigator.pushNamed(context, '/login'); // 로그인 페이지로 이동
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF4CAF50),
