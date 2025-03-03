@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'home_page.dart'; // 홈 페이지 import
+import 'open_bookclubs_page.dart'; // 현재 참여 가능한 북클럽 페이지 import
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -76,7 +77,10 @@ class _HomePageState extends State<HomePage> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/bookclubs');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OpenBookClubsPage()),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
