@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'home_page.dart';
+import '../services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -10,6 +15,47 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await ApiService.post('/auth/login', {
+        "phoneNumber": _phoneController.text,
+        "password": _passwordController.text,
+      }, includeAuth: false); // ✅ 로그인 API에는 JWT 불필요
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('jwt_token', data['access_token']);
+
+        // 로그인 성공 후 홈 페이지로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인 실패: 휴대폰 번호 또는 비밀번호 오류')),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,13 +114,15 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {}, // 로그인 기능 미정
+                onPressed: _isLoading ? null : _login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('로그인'),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text('로그인'),
               ),
             ),
           ],

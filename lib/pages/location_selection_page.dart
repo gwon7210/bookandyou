@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
 import 'dart:convert';
 
 class LocationSelectionPage extends StatefulWidget {
@@ -54,6 +54,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('위치 정보를 가져오는 데 실패했습니다: $e')),
       );
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -61,37 +62,27 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
   }
 
   Future<void> _sendProfileToServer(String latitude, String longitude) async {
-    final apiUrl = Uri.parse('http://10.0.2.2:3000/profile'); // 임시 API 엔드포인트
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "age": widget.age,
-      "introduction": widget.introduction,
-      "idealPerson": widget.idealPerson,
-      "latitude": latitude,
-      "longitude": longitude,
-    });
-
     try {
-      final response = await http.post(apiUrl, headers: headers, body: body);
+      final response = await ApiService.post('/profile', {
+        "age": widget.age,
+        "introduction": widget.introduction,
+        "idealPerson": widget.idealPerson,
+        "latitude": latitude,
+        "longitude": longitude,
+      });
 
       if (response.statusCode == 201) {
-        Navigator.pushReplacementNamed(context, '/home'); // 위치 설정 완료 후 바로 홈 페이지로 이동
+        Navigator.pushReplacementNamed(context, '/home'); // 위치 설정 완료 후 홈으로 이동
       } else {
         final responseBody = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('저장 실패: ${responseBody["message"]}')),
         );
-        setState(() {
-          _isLoading = false;
-        });
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('네트워크 오류: $e')),
       );
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 

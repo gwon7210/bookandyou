@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
 import 'dart:convert';
 import 'home_page.dart';
 
@@ -21,9 +21,8 @@ class _OpenBookClubsPageState extends State<OpenBookClubsPage> {
   }
 
   Future<void> _fetchOpenBookClubs() async {
-    final apiUrl = Uri.parse('http://10.0.2.2:3000/open-bookclubs'); // API 엔드포인트
     try {
-      final response = await http.get(apiUrl);
+      final response = await ApiService.get('/open-bookclubs'); // ✅ API 요청
       if (response.statusCode == 200) {
         setState(() {
           _openBookClubs = jsonDecode(response.body);

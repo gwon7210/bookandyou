@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
 import 'dart:convert';
 import 'age_selection_page.dart'; // 나이 선택 페이지 import
 
@@ -37,23 +37,28 @@ class _PasswordRegisterPageState extends State<PasswordRegisterPage> {
       return;
     }
 
-    final url = Uri.parse('http://10.0.2.2:3000/users'); // API 엔드포인트
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "email": email,
-      "phoneNumber": phoneNumber,
-      "password": password,
-    });
-
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await ApiService.post('/users', {
+        "email": email,
+        "phoneNumber": phoneNumber,
+        "password": password,
+      }, includeAuth: false);
 
       if (response.statusCode == 201) {
+        final responseBody = jsonDecode(response.body);
+        
+        // JWT 토큰 저장
+        final accessToken = responseBody['accessToken'];
+        if (accessToken != null) {
+          await ApiService.setToken(accessToken);
+        } else {
+          throw Exception('토큰이 없습니다');
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('회원가입 성공! 추가 정보를 입력해주세요.')),
         );
 
-        // 기존 페이지 스택을 제거하고 나이 선택 페이지로 이동
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const AgeSelectionPage()),

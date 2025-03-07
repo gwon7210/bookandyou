@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'home_page.dart'; // 홈 페이지 import
 import 'open_bookclubs_page.dart'; // 현재 참여 가능한 북클럽 페이지 import
+import '../services/api_service.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,9 +25,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _fetchBookClubs() async {
-    final apiUrl = Uri.parse('http://10.0.2.2:3000/bookclubs'); // API 엔드포인트
     try {
-      final response = await http.get(apiUrl);
+      final response = await ApiService.get('/joinedbookclubs'); // ✅ API 요청
       if (response.statusCode == 200) {
         setState(() {
           _bookClubs = jsonDecode(response.body);
