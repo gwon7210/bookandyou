@@ -51,6 +51,11 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),
       );
+    } else if (index == 1) {  // 북클럽 버튼
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const OpenBookclubsPage()),
+      );
     } else {
       setState(() {
         _selectedIndex = index;
@@ -80,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const OpenBookClubsPage()),
+                    MaterialPageRoute(builder: (context) => const OpenBookclubsPage()),
                   );
                 },
                 style: ElevatedButton.styleFrom(

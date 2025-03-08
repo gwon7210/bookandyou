@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
+import 'open_bookclubs_page.dart';
 
 class LocationSelectionPage extends StatefulWidget {
   final int age;
@@ -72,7 +73,7 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
       });
 
       if (response.statusCode == 201) {
-        Navigator.pushReplacementNamed(context, '/home'); // 위치 설정 완료 후 홈으로 이동
+        _onLocationSelected();
       } else {
         final responseBody = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,6 +85,14 @@ class _LocationSelectionPageState extends State<LocationSelectionPage> {
         SnackBar(content: Text('네트워크 오류: $e')),
       );
     }
+  }
+
+  void _onLocationSelected() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const OpenBookclubsPage()),
+      (route) => false,
+    );
   }
 
   @override

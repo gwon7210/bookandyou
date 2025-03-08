@@ -34,7 +34,7 @@ dependencies:
   path_provider: ^2.1.2
   path: ^1.8.3
   mysql1: ^0.20.0
-  geolocator: ^10.0.0
+  geolocator: ^9.0.0
   http: ^0.13.4
   shared_preferences: ^2.2.0
   
