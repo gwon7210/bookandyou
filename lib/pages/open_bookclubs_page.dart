@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'home_page.dart';
 import 'login_page.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class OpenBookclubsPage extends StatefulWidget {
   const OpenBookclubsPage({super.key});
@@ -14,6 +16,11 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
   Position? _currentPosition;
   String _currentAddress = "위치 확인 중...";
   int _selectedIndex = 0;  // 홈 탭이 선택된 상태로 시작
+  
+  // 북클럽 데이터 상태 추가
+  List<dynamic> _bookclubs = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
   
   final List<Map<String, dynamic>> bookCategories = [
     {
@@ -62,6 +69,37 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _fetchBookclubs(); // API 호출 메서드 추가
+  }
+
+  // 북클럽 데이터를 가져오는, API 호출 메서드
+  Future<void> _fetchBookclubs() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+    
+    try {
+      final response = await http.get(Uri.parse('http://10.0.2.2:3000/book-clubs'));
+      
+      if (response.statusCode == 200) {
+        final decodedData = json.decode(response.body);
+        setState(() {
+          _bookclubs = decodedData;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _errorMessage = '서버에서 데이터를 가져오는데 실패했습니다: ${response.statusCode}';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = '데이터를 가져오는데 오류가 발생했습니다: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -153,7 +191,7 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // 최근 만들어진 북클럽 리스트
+                // 최근 만들어진 북클럽 리스트 (API 연동 부분)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
@@ -168,15 +206,7 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: 5,
-                        separatorBuilder: (context, index) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          return const BookclubCard();
-                        },
-                      ),
+                      _buildBookclubList(),
                     ],
                   ),
                 ),
@@ -214,6 +244,65 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
         ),
       ),
     );
+  }
+  
+  // 북클럽 리스트를 빌드하는 위젯
+  Widget _buildBookclubList() {
+    if (_isLoading) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    } else if (_errorMessage.isNotEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Text(
+                _errorMessage,
+                style: const TextStyle(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _fetchBookclubs,
+                child: const Text('다시 시도'),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else if (_bookclubs.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text(
+            '현재 참여 가능한 북클럽이 없습니다.',
+            style: TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+        ),
+      );
+    } else {
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _bookclubs.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final bookclub = _bookclubs[index];
+          return BookclubCard(
+            name: bookclub['name'] ?? '이름 없음',
+            bookTitle: bookclub['bookTitle'] ?? '제목 없음',
+            category: bookclub['category'] ?? '기타',
+            participants: bookclub['participants'] ?? 0,
+            imageUrl: bookclub['imageUrl'] ?? 'https://picsum.photos/200/300',
+          );
+        },
+      );
+    }
   }
 }
 
@@ -280,8 +369,22 @@ class CategoryButton extends StatelessWidget {
   }
 }
 
+// BookclubCard 클래스를 API 데이터를 사용하도록 수정
 class BookclubCard extends StatelessWidget {
-  const BookclubCard({super.key});
+  final String name;
+  final String bookTitle;
+  final String category;
+  final int participants;
+  final String imageUrl;
+
+  const BookclubCard({
+    super.key,
+    required this.name,
+    required this.bookTitle,
+    required this.category,
+    required this.participants,
+    required this.imageUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -312,8 +415,8 @@ class BookclubCard extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    image: const DecorationImage(
-                      image: NetworkImage('https://picsum.photos/200/300'),  // 임시 이미지
+                    image: DecorationImage(
+                      image: NetworkImage(imageUrl),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -324,18 +427,18 @@ class BookclubCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '함께 읽는 독서모임',
-                        style: TextStyle(
+                      Text(
+                        name,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        '사피엔스',
-                        style: TextStyle(
+                      Text(
+                        bookTitle,
+                        style: const TextStyle(
                           fontSize: 15,
                           color: Colors.black87,
                           fontWeight: FontWeight.w500,
@@ -351,9 +454,9 @@ class BookclubCard extends StatelessWidget {
                           color: Colors.green.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text(
-                          '인문학',
-                          style: TextStyle(
+                        child: Text(
+                          category,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Colors.green,
                             fontWeight: FontWeight.w500,
@@ -362,12 +465,12 @@ class BookclubCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Row(
-                        children: const [
-                          Icon(Icons.people, size: 16, color: Colors.grey),
-                          SizedBox(width: 4),
+                        children: [
+                          const Icon(Icons.people, size: 16, color: Colors.grey),
+                          const SizedBox(width: 4),
                           Text(
-                            '5명 참여중',
-                            style: TextStyle(
+                            '$participants명 참여중',
+                            style: const TextStyle(
                               fontSize: 13,
                               color: Colors.grey,
                               fontWeight: FontWeight.w500,
