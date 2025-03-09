@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', data['access_token']);
