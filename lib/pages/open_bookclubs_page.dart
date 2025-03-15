@@ -4,6 +4,8 @@ import 'home_page.dart';
 import 'login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'my_bookclubs_page.dart';
+import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
 
 class OpenBookclubsPage extends StatefulWidget {
   const OpenBookclubsPage({super.key});
@@ -117,16 +119,18 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
   }
 
   void _onItemTapped(int index) {
-    if (index == 0 || index == 1) {  // 홈 또는 북클럽 탭
-      setState(() {
-        _selectedIndex = index;
-      });
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+  if (index == 1) {  // "내 북클럽" 탭이 클릭되었을 때
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MyBookclubsPage()),
+    );
+  } else {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -215,32 +219,9 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
             ),
           ),
         ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-              BottomNavigationBarItem(icon: Icon(Icons.book), label: '북클럽'),
-              BottomNavigationBarItem(icon: Icon(Icons.notifications), label: '알림'),
-              BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.green,
-            unselectedItemColor: Colors.grey,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            type: BottomNavigationBarType.fixed,
-            onTap: _onItemTapped,
-          ),
+        bottomNavigationBar: CommonBottomNavigation(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
         ),
       ),
     );
