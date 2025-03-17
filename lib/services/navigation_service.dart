@@ -6,32 +6,37 @@ import '../pages/profile_page.dart';
 
 class NavigationService {
   static void handleNavigation(BuildContext context, int index) {
+    Widget page;
+    String routeName;
+
     switch (index) {
-      case 0: // 홈
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const OpenBookclubsPage()),
-          (route) => false,
-        );
+      case 0:
+        page = const OpenBookclubsPage();
+        routeName = "/home";
         break;
-      case 1: // 내 북클럽
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MyBookclubsPage()),
-        );
+      case 1:
+        page = const MyBookclubsPage();
+        routeName = "/mybookclubs";
         break;
-      case 2: // 채팅
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ChatPage()),
-        );
+      case 2:
+        page = const ChatPage();
+        routeName = "/chat";
         break;
-      case 3: // 프로필
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ProfilePage()),
-        );
+      case 3:
+        page = const ProfilePage();
+        routeName = "/profile";
         break;
+      default:
+        return;
     }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => page,
+        settings: RouteSettings(name: routeName),
+      ),
+      (route) => false, // 스택을 완전히 비우고 새로운 페이지만 남김
+    );
   }
-} 
+}

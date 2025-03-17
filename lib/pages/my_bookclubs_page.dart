@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
+import 'create_bookclub_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart';
-import 'my_bookclubs_page.dart';
-import '../services/navigation_service.dart';
-import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
+import 'package:bookandyou/services/navigation_service.dart';
 
 class MyBookclubsPage extends StatefulWidget {
   const MyBookclubsPage({super.key});
@@ -17,6 +17,10 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
   List<dynamic> _myBookclubs = [];
   bool _isLoading = true;
   String _errorMessage = '';
+
+  void _onItemTapped(int index) {
+    NavigationService.handleNavigation(context, index);
+  }
 
   @override
   void initState() {
@@ -53,10 +57,6 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
     }
   }
 
-  void _onItemTapped(int index) {
-    NavigationService.handleNavigation(context, index);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,14 +70,33 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _errorMessage.isNotEmpty
-                ? _buildErrorUI()
-                : _myBookclubs.isEmpty
-                    ? _buildEmptyUI()
-                    : _buildBookclubList(),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _errorMessage.isNotEmpty
+                    ? _buildErrorUI()
+                    : _myBookclubs.isEmpty
+                        ? _buildEmptyUI()
+                        : _buildBookclubList(),
+          ),
+          // 떠 있는 버튼 (고정)
+          Positioned(
+            bottom: 24, // 하단 여백
+            right: 24, // 우측 여백
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CreateBookclubPage()),
+                );
+              },
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.add, color: Colors.white, size: 28),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: CommonBottomNavigation(
         selectedIndex: 1,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'home_page.dart';
 import 'login_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'my_bookclubs_page.dart';
 import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
+import 'package:bookandyou/services/navigation_service.dart';
 
 class OpenBookclubsPage extends StatefulWidget {
   const OpenBookclubsPage({super.key});
@@ -119,18 +119,8 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
   }
 
   void _onItemTapped(int index) {
-  if (index == 1) {  // "내 북클럽" 탭이 클릭되었을 때
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const MyBookclubsPage()),
-    );
-  } else {
-    setState(() {
-      _selectedIndex = index;
-    });
+    NavigationService.handleNavigation(context, index);
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
