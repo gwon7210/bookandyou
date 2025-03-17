@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home_page.dart';
+import 'open_bookclubs_page.dart';
 import '../services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
         // 로그인 성공 후 홈 페이지로 이동
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => const OpenBookclubsPage()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

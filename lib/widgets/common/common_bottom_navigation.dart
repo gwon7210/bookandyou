@@ -14,8 +14,9 @@ class CommonBottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈1'),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
         BottomNavigationBarItem(icon: Icon(Icons.book), label: '내 북클럽'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: '채팅'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: '프로필'),
       ],
       currentIndex: selectedIndex,

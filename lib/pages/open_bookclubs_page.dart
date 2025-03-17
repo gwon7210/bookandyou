@@ -182,7 +182,7 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
                       crossAxisCount: 4,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
-                      childAspectRatio: 0.85,  // 카테고리 버튼의 세로 길이 조정
+                      childAspectRatio: 1.0,  // 비율을 1:1로 조정
                     ),
                     itemCount: bookCategories.length,
                     itemBuilder: (context, index) {
@@ -302,14 +302,16 @@ class CategoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 70,  // 버튼 너비 조정
+      height: 70,  // 버튼 높이 조정
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -322,7 +324,7 @@ class CategoryButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),  // 패딩 조정
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
@@ -330,14 +332,14 @@ class CategoryButton extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: color,
-                  size: 24,
+                  size: 20,  // 아이콘 크기 조정
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),  // 간격 조정
               Text(
                 name,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,  // 텍스트 크기 조정
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
                 ),

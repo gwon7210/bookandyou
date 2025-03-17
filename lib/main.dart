@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignupPage(), // 회원가입 페이지
         '/phone_login': (context) => const PhoneLoginPage(), // 휴대폰 로그인 페이지
         '/password_register': (context) => const PasswordRegisterPage(phoneNumber: ''), // 비밀번호 등록 페이지
-        '/home': (context) => const HomePage(), // 홈 페이지 추가
+        // '/home': (context) => const HomePage(), // 홈 페이지 추가
         '/login': (context) => const LoginPage(), // ✅ 로그인 페이지 추가
       },
     );

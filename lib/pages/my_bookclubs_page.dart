@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'my_bookclubs_page.dart';
+import '../services/navigation_service.dart';
 import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
 
 class MyBookclubsPage extends StatefulWidget {
@@ -53,14 +54,7 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
   }
 
   void _onItemTapped(int index) {
-    if (index == 0) {
-      Navigator.pop(context);
-    } else if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const MyBookclubsPage()),
-      );
-    }
+    NavigationService.handleNavigation(context, index);
   }
 
   @override
