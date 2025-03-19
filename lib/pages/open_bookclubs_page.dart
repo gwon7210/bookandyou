@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'my_bookclubs_page.dart';
 import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
 import 'package:bookandyou/services/navigation_service.dart';
+import 'package:bookandyou/services/api_service.dart';
 
 class OpenBookclubsPage extends StatefulWidget {
   const OpenBookclubsPage({super.key});
@@ -17,53 +18,53 @@ class OpenBookclubsPage extends StatefulWidget {
 class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
   Position? _currentPosition;
   String _currentAddress = "위치 확인 중...";
-  int _selectedIndex = 0;  // 홈 탭이 선택된 상태로 시작
-  
+  int _selectedIndex = 0; // 홈 탭이 선택된 상태로 시작
+
   // 북클럽 데이터 상태 추가
   List<dynamic> _bookclubs = [];
   bool _isLoading = true;
   String _errorMessage = '';
-  
+
   final List<Map<String, dynamic>> bookCategories = [
     {
       "name": "인문학",
-      "icon": Icons.psychology,  // 두뇌/심리 아이콘
-      "color": const Color(0xFF5C6BC0),  // 인디고 계열
+      "icon": Icons.psychology, // 두뇌/심리 아이콘
+      "color": const Color(0xFF5C6BC0), // 인디고 계열
     },
     {
       "name": "철학",
-      "icon": Icons.lightbulb,  // 전구 아이콘
-      "color": const Color(0xFF26A69A),  // 청록색 계열
+      "icon": Icons.lightbulb, // 전구 아이콘
+      "color": const Color(0xFF26A69A), // 청록색 계열
     },
     {
       "name": "자기계발",
-      "icon": Icons.trending_up,  // 상승 그래프 아이콘
-      "color": const Color(0xFF66BB6A),  // 초록색 계열
+      "icon": Icons.trending_up, // 상승 그래프 아이콘
+      "color": const Color(0xFF66BB6A), // 초록색 계열
     },
     {
       "name": "소설",
-      "icon": Icons.auto_stories,  // 책 아이콘
-      "color": const Color(0xFFEC407A),  // 분홍색 계열
+      "icon": Icons.auto_stories, // 책 아이콘
+      "color": const Color(0xFFEC407A), // 분홍색 계열
     },
     {
       "name": "시/에세이",
-      "icon": Icons.edit_note,  // 펜 아이콘
-      "color": const Color(0xFF7E57C2),  // 보라색 계열
+      "icon": Icons.edit_note, // 펜 아이콘
+      "color": const Color(0xFF7E57C2), // 보라색 계열
     },
     {
       "name": "경제/경영",
-      "icon": Icons.business_center,  // 비즈니스 아이콘
-      "color": const Color(0xFF42A5F5),  // 파란색 계열
+      "icon": Icons.business_center, // 비즈니스 아이콘
+      "color": const Color(0xFF42A5F5), // 파란색 계열
     },
     {
       "name": "과학/기술",
-      "icon": Icons.science,  // 과학 아이콘
-      "color": const Color(0xFFEF5350),  // 빨간색 계열
+      "icon": Icons.science, // 과학 아이콘
+      "color": const Color(0xFFEF5350), // 빨간색 계열
     },
     {
       "name": "예술/문화",
-      "icon": Icons.palette,  // 팔레트 아이콘
-      "color": const Color(0xFFFFB300),  // 주황색 계열
+      "icon": Icons.palette, // 팔레트 아이콘
+      "color": const Color(0xFFFFB300), // 주황색 계열
     },
   ];
 
@@ -80,10 +81,12 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
       _isLoading = true;
       _errorMessage = '';
     });
-    
+
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:3000/book-clubs'));
-      
+      final response = await ApiService.get(
+        '/book-clubs',
+      ); // ApiService의 get 메서드 사용
+
       if (response.statusCode == 200) {
         final decodedData = json.decode(response.body);
         setState(() {
@@ -127,7 +130,7 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F9FA),  // 배경색 변경
+        backgroundColor: const Color(0xFFF8F9FA), // 배경색 변경
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
@@ -150,7 +153,11 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: Colors.black54, size: 20),
+                const Icon(
+                  Icons.chevron_right,
+                  color: Colors.black54,
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -168,12 +175,13 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
                   child: GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.0,  // 비율을 1:1로 조정
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 1.0, // 비율을 1:1로 조정
+                        ),
                     itemCount: bookCategories.length,
                     itemBuilder: (context, index) {
                       return CategoryButton(
@@ -216,7 +224,7 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
       ),
     );
   }
-  
+
   // 북클럽 리스트를 빌드하는 위젯
   Widget _buildBookclubList() {
     if (_isLoading) {
@@ -292,8 +300,8 @@ class CategoryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 70,  // 버튼 너비 조정
-      height: 70,  // 버튼 높이 조정
+      width: 70, // 버튼 너비 조정
+      height: 70, // 버튼 높이 조정
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -314,7 +322,7 @@ class CategoryButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),  // 패딩 조정
+                padding: const EdgeInsets.all(8), // 패딩 조정
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   shape: BoxShape.circle,
@@ -322,14 +330,14 @@ class CategoryButton extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: color,
-                  size: 20,  // 아이콘 크기 조정
+                  size: 20, // 아이콘 크기 조정
                 ),
               ),
-              const SizedBox(height: 4),  // 간격 조정
+              const SizedBox(height: 4), // 간격 조정
               Text(
                 name,
                 style: const TextStyle(
-                  fontSize: 12,  // 텍스트 크기 조정
+                  fontSize: 12, // 텍스트 크기 조정
                   fontWeight: FontWeight.w500,
                   color: Colors.black87,
                 ),
@@ -439,7 +447,11 @@ class BookclubCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.people, size: 16, color: Colors.grey),
+                          const Icon(
+                            Icons.people,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '$participants명 참여중',

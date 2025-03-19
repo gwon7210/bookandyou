@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
 import 'create_bookclub_page.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:bookandyou/services/navigation_service.dart';
+import 'package:bookandyou/services/api_service.dart';
 
 class MyBookclubsPage extends StatefulWidget {
   const MyBookclubsPage({super.key});
@@ -35,7 +35,7 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
     });
 
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:3000/mybookclubs'));
+      final response = await ApiService.get('/mybookclubs');
 
       if (response.statusCode == 200) {
         final decodedData = json.decode(response.body);
@@ -73,13 +73,14 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
       body: Stack(
         children: [
           SafeArea(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _errorMessage.isNotEmpty
+            child:
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _errorMessage.isNotEmpty
                     ? _buildErrorUI()
                     : _myBookclubs.isEmpty
-                        ? _buildEmptyUI()
-                        : _buildBookclubList(),
+                    ? _buildEmptyUI()
+                    : _buildBookclubList(),
           ),
           // 떠 있는 버튼 (고정)
           Positioned(
@@ -89,7 +90,9 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CreateBookclubPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const CreateBookclubPage(),
+                  ),
                 );
               },
               backgroundColor: Colors.green,
@@ -113,7 +116,9 @@ class _MyBookclubsPageState extends State<MyBookclubsPage> {
       itemBuilder: (context, index) {
         final myBookclub = _myBookclubs[index];
         final bookclub = myBookclub['bookClub'];
-        final formattedDate = DateFormat('yyyy년 MM월 dd일 HH:mm').format(DateTime.parse(myBookclub['meetingDate']));
+        final formattedDate = DateFormat(
+          'yyyy년 MM월 dd일 HH:mm',
+        ).format(DateTime.parse(myBookclub['meetingDate']));
         return BookclubCard(
           imageUrl: bookclub['imageUrl'] ?? '',
           bookTitle: bookclub['bookTitle'] ?? '제목 없음',
@@ -222,12 +227,21 @@ class BookclubCard extends StatelessWidget {
                 children: [
                   Text(
                     bookTitle,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  Text('참여자: $participants명', style: const TextStyle(fontSize: 14)),
+                  Text(
+                    '참여자: $participants명',
+                    style: const TextStyle(fontSize: 14),
+                  ),
                   const SizedBox(height: 4),
-                  Text('모임 날짜: $meetingDate', style: const TextStyle(fontSize: 14)),
+                  Text(
+                    '모임 날짜: $meetingDate',
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ],
               ),
             ),
