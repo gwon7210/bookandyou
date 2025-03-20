@@ -7,6 +7,7 @@ import 'my_bookclubs_page.dart';
 import 'package:bookandyou/widgets/common/common_bottom_navigation.dart';
 import 'package:bookandyou/services/navigation_service.dart';
 import 'package:bookandyou/services/api_service.dart';
+import 'bookclub_list_page.dart';
 
 class OpenBookclubsPage extends StatefulWidget {
   const OpenBookclubsPage({super.key});
@@ -199,13 +200,37 @@ class _OpenBookclubsPageState extends State<OpenBookclubsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        '최근 만들어진 북클럽',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '최근 만들어진 북클럽',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => const BookclubListPage(),
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              '더 보기',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       _buildBookclubList(),
